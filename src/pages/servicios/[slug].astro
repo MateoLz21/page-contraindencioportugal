@@ -1,0 +1,151 @@
+---
+import type { GetStaticPaths } from 'astro';
+import Base from '../../layouts/Base.astro';
+import Header from '../../components/Header.astro';
+import ImageSlot from '../../components/ImageSlot.astro';
+import Contacto from '../../components/Contacto.astro';
+import Footer from '../../components/Footer.astro';
+import PageScripts from '../../components/PageScripts.astro';
+import ServiciosAcordeon from '../../components/ServiciosAcordeon.astro';
+import { site } from '../../data/site';
+import { servicios, servicioHref, process } from '../../data/servicios';
+import { fotosServicioHero, fotosServicioGaleria } from '../../data/fotos';
+
+export const getStaticPaths = (() =>
+  servicios.map((s, idx) => ({ params: { slug: s.slug }, props: { idx } }))) satisfies GetStaticPaths;
+
+const { idx } = Astro.props;
+const s = servicios[idx];
+const pad = (n: number) => String(n).padStart(2, '0');
+const n = pad(idx + 1);
+const fotoHero = fotosServicioHero[s.slug];
+const galeria = fotosServicioGaleria[s.slug] ?? [];
+const waHref = `${site.whatsapp}?text=${encodeURIComponent(`Hola, quisiera una cotización de ${s.title.toLowerCase()}`)}`;
+const url = new URL(servicioHref(s.slug), Astro.site).href;
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: s.title,
+    serviceType: s.title,
+    description: s.seoDescription,
+    url,
+    provider: { '@id': new URL('/#empresa', Astro.site).href },
+    areaServed: [
+      { '@type': 'City', name: 'Arequipa' },
+      { '@type': 'Country', name: 'Perú' },
+    ],
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: s.title,
+      itemListElement: s.items.map(([t, d]) => ({
+        '@type': 'Offer',
+        itemOffered: { '@type': 'Service', name: t, description: d },
+      })),
+    },
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: Astro.site?.href },
+      { '@type': 'ListItem', position: 2, name: 'Servicios', item: new URL('/#servicios', Astro.site).href },
+      { '@type': 'ListItem', position: 3, name: s.title, item: url },
+    ],
+  },
+];
+---
+
+<Base title={s.seoTitle} description={s.seoDescription} schema={schema}>
+  <Header current="servicios" />
+  <main id="contenido">
+    <section class="svc-hero split">
+      <div class="svc-hero__text">
+        <nav aria-label="Ruta de navegación">
+          <ol class="crumbs">
+            <li><a href="/">Inicio</a></li>
+            <li><a href="/#servicios">Servicios</a></li>
+            <li aria-current="page">{s.short}</li>
+          </ol>
+        </nav>
+        <span class="slide__tag">SERVICIO {n}</span>
+        <h1 class="svc-hero__title">{s.t1} <strong>{s.t2}</strong></h1>
+        <p class="svc-hero__lead">{s.lead}</p>
+        <div class="svc-hero__btns">
+          <a href="#contacto" class="btn btn--white">Solicitar cotización →</a>
+          <a href={waHref} class="btn btn--outline" target="_blank" rel="noopener">WhatsApp</a>
+        </div>
+      </div>
+      <div class="svc-hero__media">
+        <span class="svc-hero__num" aria-hidden="true">{n}</span>
+        <div class="svc-hero__img">
+          <ImageSlot src={fotoHero?.src} alt={fotoHero?.alt} placeholder={s.heroPh} fit="contain" sizes="(min-width: 1000px) 42vw, 84vw" eager />
+        </div>
+        <span class="svc-hero__norm">{s.norms.join(' · ')}</span>
+      </div>
+    </section>
+
+    <section class="includes">
+      <div class="includes__head" data-reveal>
+        <span class="eyebrow">QUÉ INCLUYE</span>
+        <h2 class="h2 h2--sm">{s.incH1} <strong>{s.incH2}</strong></h2>
+        <p class="lead">{s.incP}</p>
+      </div>
+      <ol class="includes__list">
+        {
+          s.items.map(([t, d], k) => (
+            <li data-reveal>
+              <span class="includes__n" aria-hidden="true">{pad(k + 1)}</span>
+              <div class="includes__body">
+                <h3>{t}</h3>
+                <p>{d}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section class="gallery" aria-label="Galería">
+      {[1, 2, 3].map((g) => <div><ImageSlot src={galeria[g - 1]?.src} alt={galeria[g - 1]?.alt} placeholder={`Foto de trabajo en campo ${g}`} sizes="(min-width: 1000px) 33vw, 100vw" /></div>)}
+    </section>
+
+    <section class="section process">
+      <div class="stack" style="max-width:760px" data-reveal>
+        <span class="eyebrow">CÓMO TRABAJAMOS</span>
+        <h2 class="h2 h2--sm">De la visita <strong>al certificado</strong></h2>
+      </div>
+      <ol>
+        {
+          process.map((p, k) => (
+            <li data-reveal>
+              <span class="process__n">PASO {pad(k + 1)}</span>
+              <h3>{p.t}</h3>
+              <p>{p.d}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section class="norms">
+      <div class="stack" data-reveal>
+        <h2 class="eyebrow">NORMATIVA APLICABLE</h2>
+        <p class="lead">Trabajos aprobados en auditorías del Ministerio de Energía y Minas y por peritos internacionales de compañías aseguradoras.</p>
+      </div>
+      <ul>
+        {s.norms.map((nm) => <li>{nm}</li>)}
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 class="h2 h2--sm" data-reveal>Otros <strong>servicios</strong></h2>
+      <ServiciosAcordeon excluir={s.slug} />
+    </section>
+
+    <Contacto waHref={waHref} compact>{s.ctaH}</Contacto>
+  </main>
+  <Footer waHref={waHref} />
+  <PageScripts />
+</Base>

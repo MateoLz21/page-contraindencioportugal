@@ -1,0 +1,134 @@
+---
+import ImageSlot from './ImageSlot.astro';
+import { slides } from '../data/site';
+import { fotosHero } from '../data/fotos';
+
+const pad = (n: number) => String(n).padStart(2, '0');
+// Las imágenes apaisadas quedan chicas en la caja vertical del diseño; se les da una caja más ancha.
+const esAncha = (k: number) => {
+  const f = fotosHero[k]?.src;
+  return !!f && f.width / f.height > 1.2;
+};
+const embers = Array.from({ length: 14 }, (_, k) => {
+  const size = 3 + (k % 3);
+  return `left:${(k * 37) % 100}%;width:${size}px;height:${size}px;background:${k % 2 ? '#FFB74D' : '#FF7043'};animation-duration:${5 + (k % 5)}s;animation-delay:${(k * 0.6).toFixed(1)}s`;
+});
+---
+
+<section class="hero" aria-roledescription="carrusel" aria-label="Servicios destacados" data-hero>
+  <div class="hero__pattern"></div>
+  <div class="hero__red" data-red></div>
+  <div class="hero__embers" aria-hidden="true">{embers.map((style) => <span style={style} />)}</div>
+
+  {
+    slides.map((s, k) => {
+      const Title = k === 0 ? 'h1' : 'h2';
+      return (
+        <div class:list={['slide', k === 0 && 'is-active']} data-slide data-bg={s.bg} inert={k !== 0}>
+          <div class="slide__text">
+            <div class="slide__inner">
+              <span class="slide__tag">{s.tag}</span>
+              <Title class="slide__title">
+                {s.t1} <strong>{s.t2}</strong>
+              </Title>
+              <p class="slide__body">{s.body}</p>
+              <div class="slide__cta">
+                <a href="#contacto" class="slide__btn">{s.cta} →</a>
+                <span class="slide__norm">{s.norm}</span>
+              </div>
+            </div>
+          </div>
+          <div class:list={["slide__img", esAncha(k) && "slide__img--wide"]}>
+            <ImageSlot src={fotosHero[k]?.src} alt={fotosHero[k]?.alt} placeholder={s.ph} fit="contain" sizes="(min-width: 1000px) 47vw, 92vw" eager={k === 0} />
+          </div>
+          <div class="slide__num" aria-hidden="true">{pad(k + 1)}</div>
+        </div>
+      );
+    })
+  }
+
+  <div class="hero__ctrl">
+    <span class="hero__count"><b data-cur>01</b> <span>/ {pad(slides.length)}</span></span>
+    <div class="hero__dots">
+      {
+        slides.map((s, k) => (
+          <button type="button" class:list={['dot', k === 0 && 'is-active']} aria-label={s.tag} data-dot>
+            <span class="dot__bar" />
+          </button>
+        ))
+      }
+    </div>
+  </div>
+  <div class="hero__arrows">
+    <button type="button" class="round-btn" aria-label="Anterior" data-prev>←</button>
+    <button type="button" class="round-btn round-btn--red" aria-label="Siguiente" data-next>→</button>
+  </div>
+</section>
+
+<script>
+  const hero = document.querySelector<HTMLElement>('[data-hero]');
+
+  if (hero) {
+    const slides = [...hero.querySelectorAll<HTMLElement>('[data-slide]')];
+    const dots = [...hero.querySelectorAll<HTMLElement>('[data-dot]')];
+    const red = hero.querySelector<HTMLElement>('[data-red]');
+    const cur = hero.querySelector<HTMLElement>('[data-cur]');
+    const N = slides.length;
+    const INTERVAL = 6500;
+    const autoplay = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let i = 0;
+    let timer: number | undefined;
+    let touchX = 0;
+
+    hero.style.setProperty('--slide-ms', `${INTERVAL}ms`);
+    if (!autoplay) hero.classList.add('is-paused');
+
+    const go = (n: number) => {
+      i = ((n % N) + N) % N;
+      slides.forEach((s, k) => {
+        s.classList.toggle('is-active', k === i);
+        s.classList.toggle('is-before', k < i);
+        s.inert = k !== i;
+      });
+      dots.forEach((d, k) => d.classList.toggle('is-active', k === i));
+      if (red) red.style.background = slides[i].dataset.bg ?? '';
+      if (cur) cur.textContent = String(i + 1).padStart(2, '0');
+    };
+
+    const arm = () => {
+      clearInterval(timer);
+      if (autoplay) timer = window.setInterval(() => go(i + 1), INTERVAL);
+    };
+
+    const manual = (n: number) => {
+      go(n);
+      if (!hero.classList.contains('is-paused')) arm();
+    };
+
+    const pause = () => {
+      if (!autoplay) return;
+      clearInterval(timer);
+      hero.classList.add('is-paused');
+    };
+    const resume = () => {
+      if (!autoplay) return;
+      hero.classList.remove('is-paused');
+      arm();
+    };
+
+    hero.addEventListener('mouseenter', pause);
+    hero.addEventListener('mouseleave', resume);
+    hero.addEventListener('focusin', pause);
+    hero.addEventListener('focusout', resume);
+    hero.addEventListener('touchstart', (e) => (touchX = e.touches[0].clientX), { passive: true });
+    hero.addEventListener('touchend', (e) => {
+      const d = e.changedTouches[0].clientX - touchX;
+      if (Math.abs(d) > 50) manual(i + (d < 0 ? 1 : -1));
+    });
+    hero.querySelector('[data-prev]')?.addEventListener('click', () => manual(i - 1));
+    hero.querySelector('[data-next]')?.addEventListener('click', () => manual(i + 1));
+    dots.forEach((d, k) => d.addEventListener('click', () => manual(k)));
+
+    arm();
+  }
+</script>

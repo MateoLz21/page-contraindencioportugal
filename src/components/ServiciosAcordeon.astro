@@ -1,0 +1,36 @@
+---
+import ImageSlot from './ImageSlot.astro';
+import { services } from '../data/site';
+import { servicios, servicioHref } from '../data/servicios';
+import { fotosServicioTarjeta } from '../data/fotos';
+
+// `excluir`: slug del servicio que no debe aparecer (la página en la que ya está el visitante).
+interface Props {
+  excluir?: string;
+}
+
+const { excluir } = Astro.props;
+const items = services
+  .map((s, k) => ({ ...s, slug: servicios[k].slug, foto: fotosServicioTarjeta[servicios[k].slug] }))
+  .filter((s) => s.slug !== excluir);
+---
+
+<div class="acc" data-acc data-reveal>
+  {
+    items.map((s, k) => (
+      <a href={servicioHref(s.slug)} class:list={['acc__item', k === 0 && 'is-active']} data-acc-item>
+        <div class:list={['acc__img', s.foto?.recorte && 'acc__img--recorte']}>
+          <ImageSlot src={s.foto?.src} alt="" placeholder={`Foto: ${s.title.toLowerCase()}`} dark fit={s.foto?.recorte ? 'contain' : 'cover'} sizes="(min-width: 900px) 40vw, 90vw" />
+        </div>
+        <div class="acc__shade" />
+        <span class="acc__label" aria-hidden="true">{s.title}</span>
+        <div class="acc__body">
+          <span class="acc__norm">{s.norm}</span>
+          <h3 class="acc__title">{s.title}</h3>
+          <span class="acc__desc">{s.desc}</span>
+          <span class="acc__more">Ver servicio →</span>
+        </div>
+      </a>
+    ))
+  }
+</div>

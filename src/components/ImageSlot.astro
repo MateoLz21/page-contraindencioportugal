@@ -1,0 +1,30 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+// Sin `src` muestra el marcador del diseño; al pasar una foto importada de src/assets se reemplaza.
+interface Props {
+  src?: ImageMetadata;
+  alt?: string;
+  placeholder: string;
+  fit?: 'cover' | 'contain';
+  dark?: boolean;
+  widths?: number[];
+  sizes?: string;
+  eager?: boolean;
+  // object-position de la foto cuando se recorta (por defecto, centrada).
+  position?: string;
+}
+
+const { src, alt = '', placeholder, fit = 'cover', dark = false, widths = [480, 800, 1200], sizes = '50vw', eager = false, position } = Astro.props;
+---
+
+<div class:list={['slot', fit === 'contain' && 'slot--contain', dark && 'slot--dark']}>
+  {
+    src ? (
+      <Image src={src} alt={alt} widths={widths} sizes={sizes} loading={eager ? 'eager' : 'lazy'} style={position ? `object-position:${position}` : undefined} />
+    ) : (
+      <div class="slot__ph" role="img" aria-label={placeholder}>{placeholder}</div>
+    )
+  }
+</div>

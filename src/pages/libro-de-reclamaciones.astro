@@ -1,0 +1,214 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import LibroIcono from '../components/LibroIcono.astro';
+import { site } from '../data/site';
+
+const fullAddress = `${site.address.street}, ${site.address.district}, ${site.address.city}`;
+---
+
+<Base
+  title="Libro de Reclamaciones | Portugal Contra Incendios"
+  description="Libro de Reclamaciones virtual de Portugal Seguridad Industrial Minera E.I.R.L. Registra tu reclamo o queja conforme al Código de Protección y Defensa del Consumidor."
+>
+  <Header current="ninguno" contactHref="/#contacto" />
+  <main id="contenido" class="legal">
+    <div class="legal__inner">
+      <div class="libro__head">
+        <div class="stack">
+          <span class="eyebrow">LEY N.º 29571</span>
+          <h1 class="h2">Libro de <strong>Reclamaciones</strong></h1>
+        </div>
+        <LibroIcono width={132} />
+      </div>
+      <p>
+        Conforme al Código de Protección y Defensa del Consumidor, ponemos a tu disposición nuestro Libro de Reclamaciones virtual. Completa la hoja y recibirás una copia en tu correo.
+      </p>
+
+      <dl class="libro__proveedor">
+        <div><dt>Razón social</dt><dd>{site.legalName}</dd></div>
+        <div><dt>RUC</dt><dd>{site.ruc}</dd></div>
+        <div><dt>Domicilio</dt><dd>{fullAddress}</dd></div>
+      </dl>
+
+      <form class="form" action="/api/reclamo.php" method="post" data-libro novalidate>
+        <fieldset>
+          <legend>1. Identificación del consumidor reclamante</legend>
+          <div class="form__grid">
+            <label class="field">
+              <span>Nombres <b>*</b></span>
+              <input type="text" name="nombres" autocomplete="given-name" required minlength="2" maxlength="120" />
+            </label>
+            <label class="field">
+              <span>Apellidos <b>*</b></span>
+              <input type="text" name="apellidos" autocomplete="family-name" required minlength="2" maxlength="120" />
+            </label>
+            <label class="field">
+              <span>Tipo de documento <b>*</b></span>
+              <select name="tipo_doc" required>
+                <option value="DNI">DNI</option>
+                <option value="CE">Carné de extranjería</option>
+                <option value="Pasaporte">Pasaporte</option>
+                <option value="RUC">RUC</option>
+              </select>
+            </label>
+            <label class="field">
+              <span>Número de documento <b>*</b></span>
+              <input type="text" name="num_doc" inputmode="numeric" required pattern="[A-Za-z0-9\-]{6,20}" maxlength="20" />
+            </label>
+            <label class="field field--full">
+              <span>Domicilio <b>*</b></span>
+              <input type="text" name="domicilio" autocomplete="street-address" required minlength="5" maxlength="250" />
+            </label>
+            <label class="field">
+              <span>Teléfono <b>*</b></span>
+              <input type="tel" name="telefono" autocomplete="tel" required pattern="[0-9 +()\-]{6,30}" maxlength="30" />
+            </label>
+            <label class="field">
+              <span>Correo electrónico <b>*</b></span>
+              <input type="email" name="email" autocomplete="email" required maxlength="150" />
+            </label>
+            <label class="check field--full">
+              <input type="checkbox" name="menor" data-menor />
+              <span>Soy menor de edad</span>
+            </label>
+            <label class="field field--full" data-apoderado hidden>
+              <span>Nombre del padre, madre o apoderado <b>*</b></span>
+              <input type="text" name="apoderado" maxlength="150" />
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>2. Identificación del bien contratado</legend>
+          <div class="form__grid">
+            <div class="field">
+              <span>Tipo <b>*</b></span>
+              <div class="radios">
+                <label class="check"><input type="radio" name="bien" value="Producto" required /><span>Producto</span></label>
+                <label class="check"><input type="radio" name="bien" value="Servicio" required checked /><span>Servicio</span></label>
+              </div>
+            </div>
+            <label class="field">
+              <span>Monto reclamado (S/)</span>
+              <input type="text" name="monto" inputmode="decimal" pattern="[0-9]{1,9}([.,][0-9]{1,2})?" maxlength="12" placeholder="Opcional" />
+            </label>
+            <label class="field field--full">
+              <span>Descripción del producto o servicio <b>*</b></span>
+              <textarea name="descripcion" rows="3" required minlength="5" maxlength="1500"></textarea>
+            </label>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>3. Detalle de la reclamación y pedido del consumidor</legend>
+          <div class="form__grid">
+            <div class="field field--full">
+              <span>Tipo <b>*</b></span>
+              <div class="radios radios--col">
+                <label class="check">
+                  <input type="radio" name="tipo" value="Reclamo" required checked />
+                  <span><strong>Reclamo:</strong> disconformidad relacionada a los productos o servicios.</span>
+                </label>
+                <label class="check">
+                  <input type="radio" name="tipo" value="Queja" required />
+                  <span><strong>Queja:</strong> disconformidad no relacionada a los productos o servicios, o malestar o descontento respecto a la atención al público.</span>
+                </label>
+              </div>
+            </div>
+            <label class="field field--full">
+              <span>Detalle <b>*</b></span>
+              <textarea name="detalle" rows="5" required minlength="10" maxlength="4000"></textarea>
+            </label>
+            <label class="field field--full">
+              <span>Pedido <b>*</b></span>
+              <textarea name="pedido" rows="3" required minlength="5" maxlength="2000"></textarea>
+            </label>
+          </div>
+        </fieldset>
+
+        <!-- Trampa para bots: oculta a personas y lectores de pantalla. -->
+        <div class="form__trampa" aria-hidden="true">
+          <label>No llenar este campo <input type="text" name="sitio_web" tabindex="-1" autocomplete="off" /></label>
+        </div>
+
+        <label class="check">
+          <input type="checkbox" name="acepta" required />
+          <span>He leído y acepto la <a href="/politica-de-privacidad/" target="_blank" rel="noopener">política de privacidad</a> y autorizo el tratamiento de mis datos para atender esta reclamación. <b>*</b></span>
+        </label>
+
+        <p class="form__estado" role="alert" data-estado hidden></p>
+        <button type="submit" class="form__btn" data-enviar>Enviar hoja de reclamación</button>
+      </form>
+
+      <div class="libro__ok" role="status" data-ok hidden tabindex="-1">
+        <h2>Reclamación registrada</h2>
+        <p data-ok-msg></p>
+        <a href="/">Volver al inicio</a>
+      </div>
+
+      <ul class="libro__notas">
+        <li>La formulación del reclamo no impide acudir a otras vías de solución de controversias ni es requisito previo para interponer una denuncia ante el INDECOPI.</li>
+        <li>El proveedor deberá dar respuesta al reclamo en un plazo no mayor a quince (15) días hábiles improrrogables.</li>
+      </ul>
+    </div>
+  </main>
+  <Footer />
+</Base>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('[data-libro]');
+
+  if (form) {
+    const estado = form.querySelector<HTMLElement>('[data-estado]')!;
+    const boton = form.querySelector<HTMLButtonElement>('[data-enviar]')!;
+    const menor = form.querySelector<HTMLInputElement>('[data-menor]')!;
+    const apoderado = form.querySelector<HTMLElement>('[data-apoderado]')!;
+    const apoderadoInput = apoderado.querySelector('input')!;
+    const ok = document.querySelector<HTMLElement>('[data-ok]')!;
+    const okMsg = ok.querySelector<HTMLElement>('[data-ok-msg]')!;
+
+    const syncMenor = () => {
+      apoderado.hidden = !menor.checked;
+      apoderadoInput.required = menor.checked;
+    };
+    menor.addEventListener('change', syncMenor);
+    syncMenor();
+
+    const mostrar = (texto: string) => {
+      estado.textContent = texto;
+      estado.hidden = !texto;
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      mostrar('');
+      if (!form.checkValidity()) {
+        form.reportValidity();
+        mostrar('Revisa los campos marcados con * antes de enviar.');
+        return;
+      }
+      boton.disabled = true;
+      boton.textContent = 'Enviando…';
+      try {
+        const res = await fetch(form.action, { method: 'POST', body: new FormData(form), headers: { Accept: 'application/json' } });
+        const data = await res.json();
+        if (!data.ok) {
+          mostrar(data.mensaje || 'No se pudo registrar la reclamación.');
+          return;
+        }
+        okMsg.textContent = data.mensaje;
+        form.hidden = true;
+        ok.hidden = false;
+        ok.focus();
+        ok.scrollIntoView({ block: 'center' });
+      } catch {
+        mostrar('No se pudo enviar. Revisa tu conexión e inténtalo de nuevo, o comunícate por teléfono o WhatsApp.');
+      } finally {
+        boton.disabled = false;
+        boton.textContent = 'Enviar hoja de reclamación';
+      }
+    });
+  }
+</script>

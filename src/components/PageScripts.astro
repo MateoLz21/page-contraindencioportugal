@@ -1,0 +1,49 @@
+<script>
+  document.querySelectorAll<HTMLElement>('[data-carousel]').forEach((root) => {
+    const track = root.querySelector<HTMLElement>('[data-track]');
+    if (!track) return;
+    const scrollTrack = (d: number) => track.scrollBy({ left: d * track.clientWidth * 0.8, behavior: 'smooth' });
+    root.querySelector('[data-track-prev]')?.addEventListener('click', () => scrollTrack(-1));
+    root.querySelector('[data-track-next]')?.addEventListener('click', () => scrollTrack(1));
+  });
+
+  // Acordeón de servicios: se abre al pasar el mouse o enfocar. En táctil, el primer toque abre y el segundo navega.
+  document.querySelectorAll<HTMLElement>('[data-acc]').forEach((acc) => {
+    const items = [...acc.querySelectorAll<HTMLElement>('[data-acc-item]')];
+    const open = (el: HTMLElement) => items.forEach((it) => it.classList.toggle('is-active', it === el));
+    // El estado se lee en pointerdown: el toque también dispara focus antes del click y abriría la tarjeta.
+    let touchDown = false;
+    let wasActive = false;
+    items.forEach((it) => {
+      it.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && open(it));
+      it.addEventListener('focus', () => open(it));
+      it.addEventListener('pointerdown', (e) => {
+        touchDown = e.pointerType !== 'mouse';
+        wasActive = it.classList.contains('is-active');
+      });
+      it.addEventListener('click', (e) => {
+        if (touchDown && !wasActive) {
+          e.preventDefault();
+          open(it);
+        }
+        touchDown = false;
+      });
+    });
+  });
+
+  // Solo se ocultan los bloques que aún están bajo el pliegue; lo visible al cargar no parpadea.
+  const io = new IntersectionObserver(
+    (entries) =>
+      entries.forEach((e) => {
+        if (!e.isIntersecting) return;
+        e.target.classList.remove('reveal-init');
+        io.unobserve(e.target);
+      }),
+    { threshold: 0.15 },
+  );
+  document.querySelectorAll<HTMLElement>('[data-reveal]').forEach((el) => {
+    if (el.getBoundingClientRect().top < window.innerHeight) return;
+    el.classList.add('reveal-init');
+    io.observe(el);
+  });
+</script>

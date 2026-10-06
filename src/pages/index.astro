@@ -1,0 +1,134 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Hero from '../components/Hero.astro';
+import ImageSlot from '../components/ImageSlot.astro';
+import Footer from '../components/Footer.astro';
+import Contacto from '../components/Contacto.astro';
+import PageScripts from '../components/PageScripts.astro';
+import ServiciosAcordeon from '../components/ServiciosAcordeon.astro';
+import { marqueeWords, stats, products, steps, projects, clients } from '../data/site';
+import { fotosProductos, fotoProyectos, fotoBrigada } from '../data/fotos';
+
+---
+
+<Base>
+  <Header />
+  <main id="contenido">
+    <Hero />
+
+    <div class="marquee" aria-hidden="true">
+      <div class="marquee__track">
+        {[...marqueeWords, ...marqueeWords].map((w) => <span>{w}<i>●</i></span>)}
+      </div>
+    </div>
+
+    <section id="servicios" class="section">
+      <div class="section__head" data-reveal>
+        <div class="stack">
+          <span class="eyebrow">NUESTROS SERVICIOS</span>
+          <h2 class="h2">Un solo proveedor para <strong>toda tu protección</strong></h2>
+        </div>
+        <p class="lead">Recarga de extintores, redes de agua, detección y capacitación bajo normas NFPA y NTP. Más de 20 años en Arequipa.</p>
+      </div>
+      <ServiciosAcordeon />
+    </section>
+
+    <section class="why split">
+      <div class="why__photo">
+        <ImageSlot src={fotoBrigada?.src} alt={fotoBrigada?.alt} placeholder="Foto: brigada / técnicos Portugal en campo" dark sizes="(min-width: 1000px) 50vw, 100vw" widths={[640, 960, 1280, 1672]} />
+      </div>
+      <div class="why__text" data-reveal>
+        <span class="eyebrow">POR QUÉ PORTUGAL</span>
+        <h2 class="h2">Un contrato <strong>en lugar de cuatro</strong></h2>
+        <p class="lead">Recarga, red de agua, alarma y brigada en un mismo cronograma. Un calendario y una carpeta para la inspección.</p>
+        <dl class="stats">
+          {stats.map((st) => <div><dt>{st.l}</dt><dd>{st.v}</dd></div>)}
+        </dl>
+      </div>
+    </section>
+
+    <section id="productos" class="products" data-carousel>
+      <div class="products__head" data-reveal>
+        <div class="stack">
+          <span class="eyebrow">CATÁLOGO</span>
+          <h2 class="h2">Extintores por <strong>clase de fuego</strong></h2>
+        </div>
+        <div class="products__nav">
+          <button type="button" class="round-btn round-btn--clear" aria-label="Anterior" data-track-prev>←</button>
+          <button type="button" class="round-btn round-btn--red" aria-label="Siguiente" data-track-next>→</button>
+        </div>
+      </div>
+      <ul class="products__track" data-track>
+        {
+          products.map((p, k) => (
+            <li class="product">
+              <div class="product__media">
+                <div class="product__img">
+                  <ImageSlot src={fotosProductos[k]?.src} alt={fotosProductos[k]?.alt} placeholder={`Extintor ${p.name}`} fit="contain" sizes="380px" widths={[380, 760]} />
+                </div>
+                <span class="product__classes">{p.classes}</span>
+              </div>
+              <div class="product__body">
+                <h3 class="product__name">{p.name}</h3>
+                <span class="product__use">{p.use}</span>
+                <a href="#contacto" class="product__link" aria-label={`Cotizar extintor ${p.name}`}>Cotizar →</a>
+              </div>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+
+    <section class="section">
+      <div class="stack" style="max-width:760px" data-reveal>
+        <span class="eyebrow">NTP 350.043</span>
+        <h2 class="h2">El calendario <strong>de tu extintor</strong></h2>
+      </div>
+      <ol class="steps">
+        {
+          steps.map((c) => (
+            <li class:list={['step', c.accent && 'step--accent']} data-reveal>
+              <span class="step__when">{c.when}</span>
+              <h3 class="step__title">{c.t}</h3>
+              <span class="step__desc">{c.d}</span>
+            </li>
+          ))
+        }
+      </ol>
+    </section>
+
+    <section id="proyectos" class="split">
+      <div class="projects__text" data-reveal>
+        <span class="eyebrow">PROYECTOS</span>
+        <h2 class="projects__title">La gran minería <span>ya confía en nosotros</span></h2>
+        <p class="lead">Nuestros trabajos han sido aprobados en auditorías del Ministerio de Energía y Minas y por peritos internacionales de compañías aseguradoras.</p>
+        <ul class="projects__list">
+          {
+            projects.map((pj) => (
+              <li>
+                <span class="project__op"><strong>{pj.op}</strong><span>{pj.place}</span></span>
+                <span class="project__service">{pj.service}</span>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+      <div class="projects__photo">
+        <ImageSlot src={fotoProyectos?.src} alt={fotoProyectos?.alt} placeholder="Foto: operación minera / instalación en mina" dark position="30% center" sizes="(min-width: 1000px) 50vw, 100vw" widths={[640, 960, 1280, 1672]} />
+      </div>
+    </section>
+
+    <section class="clients">
+      <h2 class="eyebrow">CLIENTES</h2>
+      <ul>
+        {clients.map((cl) => <li>{cl}</li>)}
+      </ul>
+    </section>
+
+    <Contacto>No esperes<br />al incendio.</Contacto>
+  </main>
+  <Footer />
+  <PageScripts />
+</Base>
+

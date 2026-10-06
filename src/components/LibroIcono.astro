@@ -1,0 +1,25 @@
+---
+// Distintivo "Libro de Reclamaciones" en SVG (el archivo recibido medía 60 px y se veía borroso).
+interface Props {
+  width?: number;
+}
+
+const { width = 120 } = Astro.props;
+---
+
+<svg viewBox="0 0 160 124" width={width} height={Math.round((width * 124) / 160)} role="img" aria-label="Libro de Reclamaciones">
+  <rect width="160" height="124" rx="8" fill="#fff"></rect>
+  <text x="80" y="25" text-anchor="middle" font-family="Poppins, Arial, sans-serif" font-weight="700" font-size="18" fill="#1565C0">Libro de</text>
+  <text x="80" y="46" text-anchor="middle" font-family="Poppins, Arial, sans-serif" font-weight="700" font-size="18" fill="#1565C0">Reclamaciones</text>
+  <path d="M20 106 L20 72 Q50 60 80 72 Q110 60 140 72 L140 106 Q110 96 80 108 Q50 96 20 106Z" fill="#1565C0"></path>
+  <path d="M26 99 L26 66 Q54 56 80 68 L80 102 Q54 90 26 99Z" fill="#fff" stroke="#B0BEC5" stroke-width="1.5"></path>
+  <path d="M134 99 L134 66 Q106 56 80 68 L80 102 Q106 90 134 99Z" fill="#fff" stroke="#B0BEC5" stroke-width="1.5"></path>
+  <g stroke="#90A4AE" stroke-width="1.5" fill="none" stroke-linecap="round">
+    <path d="M34 73 Q54 67 72 74"></path>
+    <path d="M34 80 Q54 74 72 81"></path>
+    <path d="M34 87 Q54 81 72 88"></path>
+    <path d="M126 73 Q106 67 88 74"></path>
+    <path d="M126 80 Q106 74 88 81"></path>
+    <path d="M126 87 Q106 81 88 88"></path>
+  </g>
+</svg>

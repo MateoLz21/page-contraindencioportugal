@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Base title="Página no encontrada | Portugal Contra Incendios" noindex>
+  <Header current="ninguno" contactHref="/#contacto" />
+  <main id="contenido" class="notfound">
+    <span class="eyebrow">ERROR 404</span>
+    <h1 class="h2">Esta página <strong>no existe</strong></h1>
+    <p class="lead">El enlace puede estar roto o la página fue movida.</p>
+    <a href="/" class="pill">Volver al inicio</a>
+  </main>
+  <Footer />
+</Base>

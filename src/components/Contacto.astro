@@ -1,0 +1,28 @@
+---
+import { site } from '../data/site';
+
+interface Props {
+  waHref?: string;
+  compact?: boolean;
+}
+
+const { waHref = site.whatsapp, compact = false } = Astro.props;
+const fullAddress = `${site.address.street}, ${site.address.district}, ${site.address.city}`;
+---
+
+<section id="contacto" class="contact split">
+  <div class="contact__cta" data-reveal>
+    <h2 class:list={['contact__title', compact && 'contact__title--sm']}><slot /></h2>
+    <p>Cuéntanos qué necesitas y te enviamos una cotización. Visitas técnicas en Arequipa y operaciones mineras en todo el Perú.</p>
+    <div class="contact__btns">
+      <a href={waHref} class="btn btn--white" target="_blank" rel="noopener">Escribir por WhatsApp</a>
+      <a href={`tel:${site.phone}`} class="btn btn--outline">Llamar</a>
+    </div>
+  </div>
+  <dl class="contact__data">
+    <div><dt>TELÉFONO · WHATSAPP</dt><dd><a href={`tel:${site.phone}`} class="big">{site.phoneDisplay}</a></dd></div>
+    <div><dt>DIRECCIÓN</dt><dd>{fullAddress}</dd></div>
+    <div><dt>RAZÓN SOCIAL</dt><dd>{site.legalName}</dd></div>
+    <div><dt>RUC</dt><dd>{site.ruc}</dd></div>
+  </dl>
+</section>
