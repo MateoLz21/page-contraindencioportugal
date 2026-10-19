@@ -1,19 +1,20 @@
 <?php
 // Libro de Reclamaciones virtual: recibe el formulario, asigna número de hoja,
 // guarda el registro en /api/_reclamos/ y envía copia por correo al proveedor y al consumidor.
+// El correo sale por SMTP autenticado (Zoho Mail); las credenciales van en config.php (ver config.ejemplo.php).
 
 declare(strict_types=1);
 
 // ---------- Configuración ----------
-const CORREO_PROVEEDOR = 'seguridadportugal@gmail.com';
-// Debe ser una cuenta del propio dominio para que el hosting no rechace el envío.
-const CORREO_REMITENTE = 'no-responder@contraincendioportugal.com';
 const RAZON_SOCIAL = 'Portugal Seguridad Industrial Minera E.I.R.L.';
 const RUC = '20600361172';
 const DOMICILIO = 'Urb. 12 de Octubre H-18, Cerro Colorado, Arequipa';
 const DIR_DATOS = __DIR__ . '/_reclamos';
 const PAGINA = '/libro-de-reclamaciones/';
 // -----------------------------------
+
+// Sin config.php la hoja se registra igual, pero no se envía ningún correo.
+$cfg = is_file(__DIR__ . '/config.php') ? require __DIR__ . '/config.php' : null;
 
 date_default_timezone_set('America/Lima');
 mb_internal_encoding('UTF-8');
@@ -163,23 +164,47 @@ $hoja = "LIBRO DE RECLAMACIONES - HOJA DE RECLAMACIÓN N.º {$numero}\n"
 
 function enviar(string $para, string $asunto, string $cuerpo, string $responderA): bool
 {
-    $cabeceras = [
-        'From: ' . mb_encode_mimeheader('Libro de Reclamaciones', 'UTF-8') . ' <' . CORREO_REMITENTE . '>',
-        'Reply-To: ' . $responderA,
-        'MIME-Version: 1.0',
-        'Content-Type: text/plain; charset=UTF-8',
-        'Content-Transfer-Encoding: 8bit',
-    ];
-    return @mail($para, mb_encode_mimeheader($asunto, 'UTF-8'), $cuerpo, implode("\r\n", $cabeceras), '-f' . CORREO_REMITENTE);
+    global $cfg;
+    if (!is_array($cfg) || empty($cfg['smtp_usuario']) || empty($cfg['smtp_clave'])) {
+        return false;
+    }
+    require_once __DIR__ . '/lib/phpmailer/Exception.php';
+    require_once __DIR__ . '/lib/phpmailer/PHPMailer.php';
+    require_once __DIR__ . '/lib/phpmailer/SMTP.php';
+
+    $mail = new PHPMailer\PHPMailer\PHPMailer(true);
+    try {
+        $mail->isSMTP();
+        $mail->Host = $cfg['smtp_host'] ?? 'smtp.zoho.com';
+        $mail->Port = (int) ($cfg['smtp_puerto'] ?? 465);
+        $mail->SMTPSecure = $cfg['smtp_seguridad'] ?? 'ssl';
+        $mail->SMTPAuth = true;
+        $mail->Username = $cfg['smtp_usuario'];
+        $mail->Password = $cfg['smtp_clave'];
+        $mail->Timeout = 15;
+        $mail->CharSet = 'UTF-8';
+        // Zoho solo acepta como remitente la cuenta autenticada o un alias suyo.
+        $mail->setFrom($cfg['remitente'] ?? $cfg['smtp_usuario'], 'Libro de Reclamaciones');
+        $mail->addAddress($para);
+        $mail->addReplyTo($responderA);
+        $mail->Subject = $asunto;
+        $mail->Body = $cuerpo;
+        $mail->send();
+        return true;
+    } catch (Throwable $e) {
+        error_log('Libro de Reclamaciones: no se pudo enviar a ' . $para . ': ' . $e->getMessage());
+        return false;
+    }
 }
 
 $asunto = "Hoja de Reclamación N.º {$numero} ({$d['tipo']})";
-$alProveedor = enviar(CORREO_PROVEEDOR, $asunto, $hoja, $d['email']);
+$destino = is_array($cfg) ? (string) ($cfg['destino'] ?? $cfg['smtp_usuario'] ?? '') : '';
+$alProveedor = $destino !== '' && enviar($destino, $asunto, $hoja, $d['email']);
 $alConsumidor = enviar(
     $d['email'],
     $asunto . ' - ' . RAZON_SOCIAL,
     "Hola {$d['nombres']}:\n\nRecibimos tu {$d['tipo']}. Esta es la copia de tu Hoja de Reclamación.\n\n" . $hoja,
-    CORREO_PROVEEDOR
+    $destino
 );
 
 if (!$guardado && !$alProveedor) {

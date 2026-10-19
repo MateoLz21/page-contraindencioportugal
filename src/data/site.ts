@@ -1,3 +1,5 @@
+import type { ImageMetadata } from 'astro';
+
 export const site = {
   name: 'Portugal Contra Incendios',
   legalName: 'Portugal Seguridad Industrial Minera E.I.R.L.',
@@ -5,7 +7,7 @@ export const site = {
   phone: '+51932481153',
   phoneDisplay: '+51 932 481 153',
   whatsapp: 'https://wa.me/51932481153',
-  email: 'seguridadportugal@gmail.com',
+  email: 'info@contraincendioportugal.com',
   address: {
     street: 'Urb. 12 de Octubre H-18',
     district: 'Cerro Colorado',
@@ -15,6 +17,13 @@ export const site = {
   title: 'Recarga de extintores y sistemas contra incendios en Arequipa | Portugal',
   description:
     'Recarga y venta de extintores, redes de agua, detección de incendios, supresión en equipos pesados y capacitación de brigadas en Arequipa. Más de 20 años en minería e industria bajo normas NFPA y NTP.',
+};
+
+// Redes sociales: las que tengan `url` vacía no se muestran.
+export const redes = {
+  facebook: { nombre: 'Facebook', url: '' },
+  instagram: { nombre: 'Instagram', url: '' },
+  tiktok: { nombre: 'TikTok', url: 'https://www.tiktok.com/@contraincendioportugal' },
 };
 
 export const slides = [
@@ -66,4 +75,19 @@ export const projects = [
   { op: 'Mina Cerro Verde', place: 'Arequipa', service: 'Mantenimiento de hidrantes' },
 ];
 
-export const clients = ['Sociedad Minera Cerro Verde', 'Anglo American Quellaveco', 'Minera Antapaccay', 'Fluor Daniel', 'Stracon – GyM', 'Arca Continental Lindley', 'Inkabor', 'Bosch Casa', 'Inca Alpaca', 'SERMEDI', 'LIVIT', 'Carmen Inmuebles'];
+// Sin `logo` se muestra el nombre. Para poner un logo: guardarlo en src/assets/clientes/,
+// importarlo arriba y asignarlo, por ejemplo { nombre: 'Minera Antapaccay', logo: antapaccay }.
+export const clients: { nombre: string; logo?: ImageMetadata }[] = [
+  { nombre: 'Sociedad Minera Cerro Verde' },
+  { nombre: 'Anglo American Quellaveco' },
+  { nombre: 'Minera Antapaccay' },
+  { nombre: 'Fluor Daniel' },
+  { nombre: 'Stracon – GyM' },
+  { nombre: 'Arca Continental Lindley' },
+  { nombre: 'Inkabor' },
+  { nombre: 'Bosch Casa' },
+  { nombre: 'Inca Alpaca' },
+  { nombre: 'SERMEDI' },
+  { nombre: 'LIVIT' },
+  { nombre: 'Carmen Inmuebles' },
+];

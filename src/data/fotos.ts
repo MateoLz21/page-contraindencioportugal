@@ -28,7 +28,7 @@ const extintores: Foto = { src: heroExtintores, alt: 'Dos extintores rojos de po
 const redes: Foto = { src: heroRedes, alt: 'Red de agua contra incendio con gabinete de manguera, válvulas, manómetros, rociador e hidrante' };
 const gabinetes: Foto = { src: heroGabinetes, alt: 'Gabinetes contra incendio rojos con manguera enrollada, válvula y pitón' };
 const deteccion: Foto = { src: heroDeteccion, alt: 'Paneles de alarma contra incendio, detectores de humo, estación manual, sirenas y luces estroboscópicas' };
-const supresion: Foto = { src: heroSupresion, alt: 'Sistema de supresión de incendios para vehículos: cilindros de agente, boquillas de descarga, panel de control y actuador manual' };
+const supresion: Foto = { src: heroSupresion, alt: 'Sistema de supresión de incendios para equipos pesados: dos cilindros de agente sobre base roja, mangueras de descarga y módulo de control' };
 const capacitacion: Foto = { src: heroCapacitacion, alt: 'Instructor con chaleco rojo explicando clases de fuego y uso de extintores en una capacitación contra incendios' };
 const epp: Foto = { src: heroEpp, alt: 'Equipos de protección personal: casco, orejeras, respirador, guantes, lentes, chaleco reflectivo, botas de seguridad y arnés' };
 const camaras: Foto = { src: heroCamaras, alt: 'Tres cámaras de seguridad blancas: tipo bala, domo y domo PTZ con soporte de pared' };
@@ -64,6 +64,8 @@ export const fotosProductos: (Foto | undefined)[] = [
   { src: extintorAcetato, alt: 'Extintor de acero inoxidable de acetato de potasio para fuegos clase K' },
 ];
 
+const ventaExtintores: Foto = { src: extintorCo2, alt: 'Extintor rojo de dióxido de carbono (CO₂) con corneta negra' };
+
 // Acordeón "Nuestros servicios" de Inicio: foto de fondo de cada tarjeta, por slug.
 export const fotosServicioTarjeta: Record<string, Foto> = {
   'deteccion-de-incendios': { ...deteccion, recorte: true },
@@ -71,7 +73,7 @@ export const fotosServicioTarjeta: Record<string, Foto> = {
   'extintores-inspeccion-y-recarga': { ...extintores, recorte: true },
   'capacitacion-contra-incendios': { ...capacitacion, recorte: true },
   'supresion-equipos-pesados': { ...supresion, recorte: true },
-  'venta-de-extintores': { src: extintorCo2, alt: '', recorte: true },
+  'venta-de-extintores': { ...ventaExtintores, recorte: true },
   'camaras-de-seguridad': { ...camaras, recorte: true },
   'seguridad-industrial-y-epp': { ...epp, recorte: true },
 };
@@ -83,9 +85,10 @@ export const fotosServicioHero: Record<string, Foto> = {
   'extintores-inspeccion-y-recarga': extintores,
   'redes-de-agua-contra-incendio': redes,
   'supresion-equipos-pesados': supresion,
+  'venta-de-extintores': ventaExtintores,
   'camaras-de-seguridad': camaras,
   'seguridad-industrial-y-epp': epp,
 };
 
-// Galería de cada página de servicio (3 fotos), por slug.
+// Galería de cada página de servicio (3 fotos), por slug. Sin fotos, la sección no se muestra.
 export const fotosServicioGaleria: Record<string, (Foto | undefined)[]> = {};

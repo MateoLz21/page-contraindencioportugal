@@ -1,0 +1,4 @@
+# Credenciales y bibliotecas: sin acceso directo por web.
+<FilesMatch "^config(\.ejemplo)?\.php$">
+  Require all denied
+</FilesMatch>

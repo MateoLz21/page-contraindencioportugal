@@ -1,0 +1,94 @@
+---
+import { Image, getImage } from 'astro:assets';
+import { galeria } from '../data/galeria';
+
+// Versión grande para el visor; sin JavaScript el enlace abre esta misma imagen.
+const fotos = await Promise.all(
+  galeria.map(async (f) => {
+    const grande = await getImage({ src: f.src, width: Math.min(1600, f.src.width), format: 'webp' });
+    return { ...f, grande: grande.src };
+  }),
+);
+---
+
+<section id="galeria" class="section galeria">
+  <div class="section__head" data-reveal>
+    <div class="stack">
+      <span class="eyebrow">GALERÍA</span>
+      <h2 class="h2">Nuestro trabajo <strong>en campo</strong></h2>
+    </div>
+    <p class="lead">Instalaciones, mantenimiento y capacitaciones de nuestro equipo en operaciones mineras e industriales.</p>
+  </div>
+
+  <ul class="galeria__grid">
+    {
+      fotos.map((f, k) => (
+        <li class="galeria__item" data-reveal>
+          <a href={f.grande} data-lb={k} aria-label={`Ampliar: ${f.titulo}`}>
+            <Image src={f.src} alt={f.titulo} widths={[400, 700, 1000]} sizes="(min-width: 900px) 33vw, 50vw" />
+            <span class="galeria__pie" aria-hidden="true">{f.titulo}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <dialog class="lb" data-lb-dialog aria-label="Visor de fotos">
+    <figure class="lb__fig">
+      <img data-lb-img alt="" />
+      <figcaption class="lb__pie"><span data-lb-pie></span> <span class="lb__num" data-lb-num></span></figcaption>
+    </figure>
+    <button type="button" class="lb__btn lb__cerrar" aria-label="Cerrar" data-lb-cerrar>✕</button>
+    <button type="button" class="lb__btn lb__prev" aria-label="Foto anterior" data-lb-prev>←</button>
+    <button type="button" class="lb__btn lb__next" aria-label="Foto siguiente" data-lb-next>→</button>
+  </dialog>
+</section>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>('[data-lb-dialog]');
+  const links = [...document.querySelectorAll<HTMLAnchorElement>('[data-lb]')];
+
+  if (dialog && links.length) {
+    const img = dialog.querySelector<HTMLImageElement>('[data-lb-img]')!;
+    const pie = dialog.querySelector<HTMLElement>('[data-lb-pie]')!;
+    const num = dialog.querySelector<HTMLElement>('[data-lb-num]')!;
+    const N = links.length;
+    let i = 0;
+    let touchX = 0;
+
+    const mostrar = (n: number) => {
+      i = ((n % N) + N) % N;
+      const a = links[i];
+      const alt = a.querySelector('img')?.alt ?? '';
+      img.src = a.href;
+      img.alt = alt;
+      pie.textContent = alt;
+      num.textContent = `${i + 1} / ${N}`;
+    };
+
+    links.forEach((a, k) =>
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        mostrar(k);
+        dialog.showModal();
+      }),
+    );
+    dialog.querySelector('[data-lb-prev]')?.addEventListener('click', () => mostrar(i - 1));
+    dialog.querySelector('[data-lb-next]')?.addEventListener('click', () => mostrar(i + 1));
+    dialog.querySelector('[data-lb-cerrar]')?.addEventListener('click', () => dialog.close());
+    // Clic fuera de la foto cierra.
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+    dialog.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') mostrar(i - 1);
+      if (e.key === 'ArrowRight') mostrar(i + 1);
+    });
+    dialog.addEventListener('touchstart', (e) => (touchX = e.touches[0].clientX), { passive: true });
+    dialog.addEventListener('touchend', (e) => {
+      const d = e.changedTouches[0].clientX - touchX;
+      if (Math.abs(d) > 50) mostrar(i + (d < 0 ? 1 : -1));
+    });
+    dialog.addEventListener('close', () => links[i].focus());
+  }
+</script>

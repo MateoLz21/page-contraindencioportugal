@@ -6,10 +6,13 @@ Hosting: cPanel (Apache + PHP, sin Node en servidor).
 
 ---
 
-## Estado al 03/10/2026
+## Estado al 18/10/2026
 
-Sitio estático en Astro con 11 páginas generadas: Inicio, 8 páginas de servicio, política de privacidad y 404.
-`npm run build` pasa sin errores. Falta poner las fotos reales y cerrar los pendientes del final.
+**Publicado** en https://contraincendioportugal.com (Mateo subió el zip el 18/10/2026).
+Sitio estático en Astro: Inicio, 8 páginas de servicio, política de privacidad, Libro de Reclamaciones y 404 (12 páginas).
+Batería de pruebas en Edge: 49 de 49. Próximo paso: **retroalimentación del cliente** (Mateo la espera el 19/10/2026).
+
+Para volver a publicar: `npm run empaquetar` → subir `portugal-web-hosting.zip` a `public_html` → Extraer encima → borrar el zip.
 
 ## Decisiones tomadas
 
@@ -141,47 +144,96 @@ docs/                     prompts de Claude Design y esta bitácora
 - Inicio ya no tiene ningún marcador. Acordeón: 8 de 8 paneles con imagen.
 - Fotos restantes: 25: hero de la página "Venta de extintores" y 24 de galería (3 por servicio).
 
+### Paquete para el hosting (05/10/2026)
+
+- Galería de las páginas de servicio: se oculta mientras el servicio no tenga fotos en `fotosServicioGaleria`; aparece sola al registrar la primera.
+- Hero de `/servicios/venta-de-extintores/`: usa el recorte del extintor de CO₂ (el mismo de su panel del acordeón), provisional hasta tener otra imagen.
+- Con esto no queda ningún marcador visible en el sitio. Imágenes que aún faltan y pedirá Mateo al cliente: 24 de galería (3 por servicio) y, opcional, una propia para el hero de venta de extintores.
+- Batería completa en Edge automatizado sobre el build final: 49 de 49 (incluye rastreo de las 11 páginas sin enlaces rotos ni marcadores). Sin probar: Safari, Firefox y todo lo que depende del hosting.
+- Paquete: `portugal-web-hosting.zip` en la raíz del proyecto (6,8 MB, ignorado por git). Es el contenido de `dist/` sin 6 PNG originales que Astro deja en `_astro/` y ninguna página usa. Para regenerarlo: `npm run build` y luego `tar -a -cf portugal-web-hosting.zip --exclude="_astro/hero-*.png" -C dist .` (el `tar` de Windows).
+
+#### Correo: Zoho Mail (decisión de Mateo, 05/10/2026)
+
+- Los correos corporativos van por Zoho Mail; no se usan los buzones del hosting.
+- Por eso `reclamo.php` ya no usa `mail()`: envía por SMTP autenticado de Zoho con PHPMailer 7.1.1 (copiado en `public/api/lib/phpmailer/`, sin Composer).
+- Credenciales en `api/config.php`, que **no** está en el repositorio ni en el zip: se crea a mano en el hosting a partir de `api/config.ejemplo.php`. Define servidor SMTP, cuenta, contraseña de aplicación, remitente y buzón destino. Protegido por `api/.htaccess`.
+- Sin `config.php`, o si Zoho no responde, la hoja se guarda igual y el visitante ve su número; solo falla el correo (queda en el log de errores de PHP).
+- Probado en local contra un servidor SMTP falso: autenticación, dos envíos (empresa y consumidor), cabeceras y tildes correctas; también sin configuración y con el servidor caído. **No probado contra Zoho real** (faltan cuenta y contraseña).
+- Pendiente de Mateo: direcciones corporativas definitivas (remitente y destino del Libro; la política de privacidad aún muestra `seguridadportugal@gmail.com`, en `src/data/site.ts`).
+
+#### Pasos para publicar en cPanel
+
+1. Activar el certificado SSL del dominio (AutoSSL) antes de subir: el `.htaccess` redirige todo a HTTPS.
+2. MultiPHP Manager: PHP 8.1 o superior.
+3. Correo en Zoho, no en cPanel: en Zoho crear la cuenta que enviará (por ejemplo `reclamos@`) y generar una contraseña de aplicación. En cPanel → Enrutamiento de correo: "Intercambiador de correo remoto". En el DNS: registros MX, SPF y DKIM que indica Zoho.
+4. Administrador de archivos → `public_html` → subir `portugal-web-hosting.zip` → Extraer → borrar el zip. Activar "mostrar archivos ocultos" para ver `.htaccess`.
+5. Crear `public_html/api/config.php` copiando `config.ejemplo.php` y completar cuenta, contraseña de aplicación, remitente y destino.
+5b. Comprobar: el sitio carga con candado; `http://` y `www.` redirigen; una URL inexistente muestra la página 404; `/api/_reclamos/.htaccess` responde 403.
+6. Enviar una reclamación de prueba y confirmar que llegan los dos correos; luego abrir `/api/_reclamos/contador-2026.txt` y confirmar 403.
+7. En actualizaciones posteriores: no borrar `public_html/api/_reclamos/` (hojas de reclamación) ni `public_html/api/config.php` (credenciales). Extraer el zip encima no los toca. Si los correos no salen, revisar que el hosting permita conexiones salientes al puerto 465 o 587.
+8. Google Search Console: verificar el dominio y enviar `sitemap-index.xml`. Google Business Profile.
+
+## Sesión 4 (18/10/2026): galería y logo nuevo
+
+- **Galería** en Inicio (`#galeria`, entre Proyectos y Clientes) con las 8 fotos de campo que entregó Mateo, en `src/assets/galeria/` (convertidas de PNG a JPG). Datos y pies de foto en `src/data/galeria.ts`; componente `src/components/Galeria.astro`. Mosaico en columnas (3 en escritorio, 2 en móvil) que respeta la proporción de cada foto; el borde inferior queda desparejo porque las proporciones no permiten columnas iguales sin recortar. Visor a pantalla completa con flechas, teclado, deslizar y Esc; sin JavaScript el enlace abre la foto grande. Enlace "Galería" agregado al menú.
+- Para que entren seis enlaces, el menú usa separación variable y entre 1100 y 1279 px se oculta el teléfono de emergencias del header (sigue en el menú móvil, el botón Cotizar y el pie).
+- **Logo nuevo**: Mateo dijo que lo entregaría; se tomó `Downloads/PORTUGAL LOGO.jpg.jpeg` (guardado ese día). Venía con el tablero de "transparencia" pintado; Claude lo quitó por script. Se pierde el filete blanco entre la llama y la P (queda transparente; sobre fondo blanco no se nota). Archivos: `src/assets/logo-portugal.png` (completo) y `src/assets/logo-isotipo.png` (solo la P). El header usa la P junto al texto PORTUGAL / CONTRA INCENDIOS; también regenerados `favicon.png`, `favicon.ico` (nuevo), `apple-touch-icon.png` y `og.jpg` (logo completo sobre blanco). Se borró `logo-recorte.jpg`; el medallón original sigue en `src/assets/` sin uso.
+- Mateo entregó después el logo con transparencia real (`Downloads/Logotipo Portugal Seguridad contra incendios.png`). Reemplaza al anterior en `logo-portugal.png`, `logo-isotipo.png`, favicons, ícono táctil y `og.jpg`; recupera el filete blanco entre llama y P.
+- Novena foto en la galería: `cilindros-supresion-motor.jpg` (dos cilindros de supresión junto al motor de un equipo minero).
+- Empaquetado ahora con `npm run empaquetar` (build + `scripts/empaquetar.mjs`), que quita de `dist/_astro/` toda imagen original que ninguna página usa. Zip: 12,3 MB.
+- Batería completa: 49 de 49. Galería y visor probados en 1440, 1100 y 390 px.
+- Para revisar con el cliente: varias fotos muestran la marca ANSUL (el alcance pide mostrar marcas solo si son distribuidores o instaladores autorizados); la polera de una foto trae un segundo teléfono, 997 023 976, que no figura en el sitio; pies de foto redactados por Claude.
+
+## Sesión 5 (18/10/2026): redes, clientes, sin "Emergencias 24/7"
+
+- **Redes sociales**: botones redondos con ícono en el pie de todas las páginas y en el bloque de datos de Contacto (`src/components/Redes.astro`). Enlaces en `redes` de `src/data/site.ts`; las que tienen `url` vacía no se muestran. TikTok: `https://www.tiktok.com/@contraincendioportugal`. **Faltan los enlaces de Facebook e Instagram** (Mateo no los dio). También van al JSON-LD como `sameAs`.
+- **Sin "Emergencias 24/7"** (pedido de Mateo): se quitó el bloque de teléfono del header; en el menú móvil el enlace quedó como "Llamar · +51 932 481 153". El teléfono sigue en Cotizar, Contacto y WhatsApp.
+- **Clientes**: carrusel continuo de derecha a izquierda (45 s por vuelta, se pausa con el mouse; con movimiento reducido queda fijo). Por ahora con nombres. `clients` en `site.ts` acepta `logo` opcional por cliente: al asignarlo se muestra el logo en gris y en color al pasar el mouse.
+- Batería: 49 de 49. Zip regenerado.
+- Correo de contacto: `info@contraincendioportugal.com` (pedido de Mateo). Reemplaza a `seguridadportugal@gmail.com` en `site.email`: aparece en el bloque de Contacto (fila propia, enlace mailto), en la política de privacidad y en el JSON-LD. También es el `destino` de ejemplo del Libro de Reclamaciones en `config.ejemplo.php` (el `config.php` real del hosting se llena a mano).
+- Botón "Cotizar" del header: ya no lleva a #contacto; abre WhatsApp en pestaña nueva con "Hola, quisiera una cotización" (en las páginas de servicio, "…de <servicio>"). Prop `waHref` en `Header.astro`. El enlace "Contacto" del menú sigue llevando a la sección.
+- **Error al subir (cPanel: "End-of-central-directory signature not found")**: `scripts/empaquetar.mjs` llamaba a `tar` sin ruta y Node tomaba el de Git (GNU), que ignora `-a` y generaba un .tar con nombre .zip. Corregido: usa `%SystemRoot%System32	ar.exe` con `--format=zip`, guarda las entradas sin prefijo `./` y aborta si el archivo no empieza con la firma de zip. Verificado con `unzip -t` (Info-ZIP, el mismo que usa cPanel) y extrayendo.
+- Imagen de supresión reemplazada por una nueva (dos cilindros sobre base roja, mangueras y módulo de control), mismo archivo `hero-supresion.png`: cambia en slide 05, hero de `/servicios/supresion-equipos-pesados/` y panel del acordeón. Verificado en los tres.
+
 ---
 
-## Siguiente sesión: fotos
+## Imágenes
 
-Todas las imágenes son marcadores (cuadro punteado con texto). Total: 44.
+Registro central en `src/data/fotos.ts` (hero, acordeón, carrusel, Proyectos, Por qué Portugal) y `src/data/galeria.ts` (galería). Sin imagen registrada se ve un marcador; hoy no queda ninguno visible.
 
-### Inicio (12)
+Faltan:
+- **Galerías de las páginas de servicio** (3 por servicio, 24 en total). La sección está oculta mientras no haya fotos; varias de la galería de Inicio servirían (supresión y capacitación).
+- **Hero propio de "Venta de extintores"** (hoy usa el recorte del CO₂).
+- **Logos de clientes** para el carrusel (`clients` en `site.ts`, campo `logo`).
 
-| Lugar | Cantidad | Tipo |
-|---|---|---|
-| Hero, una por slide | 5 | PNG recortado sin fondo: extintor rojo, válvula de hidrante, gabinete con manguera, detector o panel de alarma, camión minero |
-| Carrusel de extintores | 5 | PNG recortado sin fondo: PQS, CO₂, agua presurizada, espuma, acetato de potasio |
-| "Por qué Portugal" | 1 | Foto: brigada o técnicos en campo |
-| Proyectos | 1 | Foto: operación minera o instalación en mina |
-
-### Servicios (32)
-
-Por cada uno de los 8 servicios: 1 imagen de hero (PNG recortado sin fondo) y 3 fotos de trabajo en campo para la galería.
-
-### Cómo se conectan
-
-1. Guardar las imágenes en `src/assets/fotos/` (Astro las optimiza a WebP al compilar).
-2. El componente `ImageSlot` ya acepta la foto: se importa la imagen y se pasa en `src` junto con un `alt` descriptivo. Sin `src` muestra el marcador.
-3. Registrar la imagen en `src/data/fotos.ts`. Hero de Inicio y páginas de servicio ya leen de ahí; falta conectar igual el carrusel de extintores, "Por qué Portugal" y Proyectos de Inicio.
-
-Recomendaciones: recortes en PNG con transparencia, fotos en JPG, ancho mínimo de 1600 px, nombres descriptivos sin espacios (por ejemplo `extintor-pqs.png`, `extintores-galeria-1.jpg`).
+Recortes de producto: PNG con transparencia real. Fotos: JPG. Si llegan con fondo claro liso se puede quitar por script (como los 5 extintores del carrusel).
 
 ## Pendientes
 
-1. **Fotos**: las 44 de arriba. No publicar con marcadores.
-2. **Dominio**: confirmado por Mateo el 05/10/2026: `https://contraincendioportugal.com` ("incendio" en singular). Configurado en `astro.config.mjs` y `public/robots.txt`.
-3. **Política de privacidad**: publicada como borrador. Falta revisión legal y reemplazar el correo Gmail por uno del dominio cuando exista.
-4. **Validar con el cliente**:
-   - "personal certificado" y la entrega de "Certificado" (paso 04 de "Cómo trabajamos").
-   - Lista real de productos de EPP; los ítems actuales son genéricos.
-   - En cámaras y EPP la "normativa" muestra `CCTV` y `EPP`, que no son normas.
+### Esperando de Mateo o del cliente
+1. **Retroalimentación del cliente** sobre el sitio publicado.
+2. Enlaces de **Facebook e Instagram** (los botones aparecen solos al poner la `url` en `redes` de `site.ts`).
+3. Logos de clientes; fotos para galerías de servicio.
+4. Validar textos y datos:
+   - "Personal certificado" y la entrega de "Certificado" (paso 04 de "Cómo trabajamos").
+   - Lista real de productos de EPP (los ítems actuales son genéricos).
+   - "Normativa" `CCTV` y `EPP` en cámaras y EPP: no son normas.
    - Cifras de Inicio: +20 años, 12 clientes corporativos, 8 líneas de servicio, 7 regiones.
-5. **Texto corto en servicios**: unas 150 palabras por página. Para posicionar mejor conviene ampliar con preguntas frecuentes, sectores y proyectos relacionados (el alcance lo preveía; el diseño no lo incluye).
-6. **Botón de WhatsApp**: resuelto, ya usa el ícono.
-7. **Página listado `/servicios/`**: no existe; el menú "Servicios" lleva a la sección de Inicio.
-8. **Probar en Safari (iPhone) y Firefox** antes de publicar; Edge/Chromium ya está probado.
-9. **Después de publicar**: alta en Google Search Console (enviar `sitemap-index.xml`) y en Google Business Profile con la dirección de Cerro Colorado.
-10. **Repositorio**: el proyecto no está en git todavía.
-11. **Libro de Reclamaciones, al publicar**: crear la cuenta `no-responder@contraincendioportugal.com` en cPanel; enviar una reclamación de prueba y confirmar que llegan ambos correos; abrir `https://contraincendioportugal.com/api/_reclamos/contador-2026.txt` y confirmar que responde 403; confirmar con el cliente a qué correo deben llegar las reclamaciones. Validar el texto con su asesor legal. Las hojas quedan en el servidor: no borrar `api/_reclamos/` al volver a subir el sitio.
+   - Permiso para nombrar clientes y minas.
+   - Marca **ANSUL** visible en fotos de la galería (el alcance pide mostrar marcas solo si son distribuidores o instaladores autorizados).
+   - Segundo teléfono **997 023 976** que aparece en la polera de una foto: ¿se agrega al sitio?
+   - Textos legales (política de privacidad, Libro de Reclamaciones) con su asesor.
+
+### En el hosting (no verificado por Claude)
+5. Libro de Reclamaciones: crear `api/config.php` con la cuenta de Zoho y contraseña de aplicación; enviar reclamación de prueba y confirmar los dos correos; confirmar que `/api/_reclamos/contador-2026.txt` responde 403. No borrar `api/_reclamos/` ni `api/config.php` al volver a subir.
+6. Comprobar HTTPS, redirección de `www` y `http`, página 404.
+7. Google Search Console (enviar `sitemap-index.xml`) y Google Business Profile.
+8. Probar en Safari (iPhone) y Firefox.
+
+### Mejoras opcionales
+9. Ampliar texto de las páginas de servicio (~150 palabras): preguntas frecuentes, sectores, proyectos.
+10. Página listado `/servicios/` (hoy el menú lleva a la sección de Inicio).
+11. Botones "Cotizar" del hero y de productos: hoy van a Contacto; podrían abrir WhatsApp como el del header.
+
+### Repositorio
+12. Hay un solo commit ("Desarrollo web MVP terminado"); todo lo posterior (Zoho, galería, logo, redes, clientes, correo, empaquetado) está **sin commit**.

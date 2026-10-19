@@ -1,5 +1,6 @@
 ---
-import { site } from '../data/site';
+import Redes from './Redes.astro';
+import { site, redes } from '../data/site';
 
 interface Props {
   waHref?: string;
@@ -21,8 +22,10 @@ const fullAddress = `${site.address.street}, ${site.address.district}, ${site.ad
   </div>
   <dl class="contact__data">
     <div><dt>TELÉFONO · WHATSAPP</dt><dd><a href={`tel:${site.phone}`} class="big">{site.phoneDisplay}</a></dd></div>
+    <div class="contact__full"><dt>CORREO</dt><dd><a href={`mailto:${site.email}`} class="contact__mail">{site.email.split('@')[0]}<wbr />@{site.email.split('@')[1]}</a></dd></div>
     <div><dt>DIRECCIÓN</dt><dd>{fullAddress}</dd></div>
     <div><dt>RAZÓN SOCIAL</dt><dd>{site.legalName}</dd></div>
     <div><dt>RUC</dt><dd>{site.ruc}</dd></div>
+    {Object.values(redes).some((r) => r.url) && <div><dt>REDES SOCIALES</dt><dd><Redes /></dd></div>}
   </dl>
 </section>

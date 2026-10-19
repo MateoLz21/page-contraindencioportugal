@@ -2,11 +2,13 @@
 import Base from '../layouts/Base.astro';
 import Header from '../components/Header.astro';
 import Hero from '../components/Hero.astro';
+import { Image } from 'astro:assets';
 import ImageSlot from '../components/ImageSlot.astro';
 import Footer from '../components/Footer.astro';
 import Contacto from '../components/Contacto.astro';
 import PageScripts from '../components/PageScripts.astro';
 import ServiciosAcordeon from '../components/ServiciosAcordeon.astro';
+import Galeria from '../components/Galeria.astro';
 import { marqueeWords, stats, products, steps, projects, clients } from '../data/site';
 import { fotosProductos, fotoProyectos, fotoBrigada } from '../data/fotos';
 
@@ -119,11 +121,23 @@ import { fotosProductos, fotoProyectos, fotoBrigada } from '../data/fotos';
       </div>
     </section>
 
+    <Galeria />
+
     <section class="clients">
       <h2 class="eyebrow">CLIENTES</h2>
-      <ul>
-        {clients.map((cl) => <li>{cl}</li>)}
-      </ul>
+      <div class="clients__viewport">
+        <ul class="clients__track">
+          {
+            [0, 1].map((copia) =>
+              clients.map((cl) => (
+                <li aria-hidden={copia === 1 ? 'true' : undefined}>
+                  {cl.logo ? <Image src={cl.logo} alt={cl.nombre} height={56} class="clients__logo" /> : cl.nombre}
+                </li>
+              )),
+            )
+          }
+        </ul>
+      </div>
     </section>
 
     <Contacto>No esperes<br />al incendio.</Contacto>

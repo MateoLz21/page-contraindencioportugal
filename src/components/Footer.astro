@@ -1,5 +1,6 @@
 ---
 import LibroIcono from './LibroIcono.astro';
+import Redes from './Redes.astro';
 import { site } from '../data/site';
 
 interface Props {
@@ -12,6 +13,7 @@ const { waHref = site.whatsapp } = Astro.props;
 <footer class="footer">
   <span>© {new Date().getFullYear()} {site.legalName}</span>
   <div class="footer__links">
+    <Redes claro />
     <a href="/politica-de-privacidad/">Política de privacidad (Ley N.º 29733)</a>
     <a href="/libro-de-reclamaciones/" class="footer__libro"><LibroIcono width={92} /></a>
   </div>

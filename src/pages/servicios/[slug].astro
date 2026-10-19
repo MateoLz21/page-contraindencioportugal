@@ -58,7 +58,7 @@ const schema = [
 ---
 
 <Base title={s.seoTitle} description={s.seoDescription} schema={schema}>
-  <Header current="servicios" />
+  <Header current="servicios" waHref={waHref} />
   <main id="contenido">
     <section class="svc-hero split">
       <div class="svc-hero__text">
@@ -107,9 +107,13 @@ const schema = [
       </ol>
     </section>
 
-    <section class="gallery" aria-label="Galería">
-      {[1, 2, 3].map((g) => <div><ImageSlot src={galeria[g - 1]?.src} alt={galeria[g - 1]?.alt} placeholder={`Foto de trabajo en campo ${g}`} sizes="(min-width: 1000px) 33vw, 100vw" /></div>)}
-    </section>
+    {
+      galeria.some(Boolean) && (
+        <section class="gallery" aria-label="Galería">
+          {[1, 2, 3].map((g) => <div><ImageSlot src={galeria[g - 1]?.src} alt={galeria[g - 1]?.alt} placeholder={`Foto de trabajo en campo ${g}`} sizes="(min-width: 1000px) 33vw, 100vw" /></div>)}
+        </section>
+      )
+    }
 
     <section class="section process">
       <div class="stack" style="max-width:760px" data-reveal>
