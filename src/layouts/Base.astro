@@ -16,7 +16,10 @@ interface Props {
 
 const { title = site.title, description = site.description, noindex = false, schema = [] } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
-const ogImage = new URL('/og.jpg', Astro.site).href;
+// Subir ICONOS_V al cambiar favicon, ícono táctil o imagen social: los navegadores los guardan
+// en caché por semanas y solo los vuelven a pedir si cambia la URL.
+const ICONOS_V = '2';
+const ogImage = new URL(`/og.jpg?v=${ICONOS_V}`, Astro.site).href;
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -64,8 +67,9 @@ const jsonLd = {
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex" />}
     <meta name="theme-color" content="#B71C1C" />
-    <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" href={`/favicon.ico?v=${ICONOS_V}`} sizes="48x48" />
+    <link rel="icon" type="image/png" sizes="96x96" href={`/favicon.png?v=${ICONOS_V}`} />
+    <link rel="apple-touch-icon" href={`/apple-touch-icon.png?v=${ICONOS_V}`} />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
     <meta property="og:type" content="website" />

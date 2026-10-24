@@ -197,6 +197,15 @@ docs/                     prompts de Claude Design y esta bitácora
 
 ---
 
+## Sesión 6 (23/10/2026): favicon en caché
+
+- Mateo veía el favicon antiguo. Revisado en el sitio publicado: `favicon.ico`, `favicon.png`, `apple-touch-icon.png` y `og.jpg` son idénticos a los nuevos (mismo md5). La causa es la caché: `.htaccess` da 30 días a las imágenes y los navegadores guardan el favicon aparte.
+- Arreglo: las URL de íconos e imagen social llevan versión (`?v=2`, constante `ICONOS_V` en `Base.astro`); subirla cada vez que cambien. Se agregó `<link>` explícito a `favicon.ico`. Publicado el 23/10/2026.
+- Google muestra el favicon que tenga en su índice; se actualiza cuando vuelve a rastrear el sitio (días o semanas). Se puede acelerar pidiendo indexación de la página principal en Search Console.
+- Botón "Llamar" quitado (pedido de Mateo): el de la sección Contacto y el enlace "Llamar · teléfono" del menú móvil. El número sigue visible en Contacto como enlace `tel:`.
+- Galería: la foto del cilindro con etiqueta de mantenimiento semestral se reemplazó por una versión nueva (mismo archivo `cilindro-supresion-ansul.jpg`, mismo pie).
+- Batería 49 de 49. Zip regenerado; incluye también el arreglo del favicon. Subido al hosting por Mateo el 23/10/2026.
+
 ## Imágenes
 
 Registro central en `src/data/fotos.ts` (hero, acordeón, carrusel, Proyectos, Por qué Portugal) y `src/data/galeria.ts` (galería). Sin imagen registrada se ve un marcador; hoy no queda ninguno visible.
@@ -236,4 +245,4 @@ Recortes de producto: PNG con transparencia real. Fotos: JPG. Si llegan con fond
 11. Botones "Cotizar" del hero y de productos: hoy van a Contacto; podrían abrir WhatsApp como el del header.
 
 ### Repositorio
-12. Hay un solo commit ("Desarrollo web MVP terminado"); todo lo posterior (Zoho, galería, logo, redes, clientes, correo, empaquetado) está **sin commit**.
+12. Código en GitHub: https://github.com/MateoLz21/page-contraindencioportugal (rama `master`). Al cerrar cada jornada: commit y push. `dist/`, el zip y `public/api/config.php` están en `.gitignore` y nunca se suben.
