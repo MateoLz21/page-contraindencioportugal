@@ -206,6 +206,10 @@ docs/                     prompts de Claude Design y esta bitácora
 - Galería: la foto del cilindro con etiqueta de mantenimiento semestral se reemplazó por una versión nueva (mismo archivo `cilindro-supresion-ansul.jpg`, mismo pie).
 - Batería 49 de 49. Zip regenerado; incluye también el arreglo del favicon. Subido al hosting por Mateo el 23/10/2026.
 
+## Sesión 7 (27/10/2026): Facebook e Instagram
+
+- Agregados los enlaces que entregó Mateo en `redes` de `site.ts`: Facebook `https://www.facebook.com/profile.php?id=100063923114484` e Instagram `https://www.instagram.com/contraincendioportugal/`. Con TikTok, ya están las tres redes en el pie de todas las páginas, en Contacto y en el JSON-LD (`sameAs`). Batería 49 de 49. Zip regenerado; **falta subirlo**.
+
 ## Imágenes
 
 Registro central en `src/data/fotos.ts` (hero, acordeón, carrusel, Proyectos, Por qué Portugal) y `src/data/galeria.ts` (galería). Sin imagen registrada se ve un marcador; hoy no queda ninguno visible.
@@ -221,7 +225,6 @@ Recortes de producto: PNG con transparencia real. Fotos: JPG. Si llegan con fond
 
 ### Esperando de Mateo o del cliente
 1. **Retroalimentación del cliente** sobre el sitio publicado.
-2. Enlaces de **Facebook e Instagram** (los botones aparecen solos al poner la `url` en `redes` de `site.ts`).
 3. Logos de clientes; fotos para galerías de servicio.
 4. Validar textos y datos:
    - "Personal certificado" y la entrega de "Certificado" (paso 04 de "Cómo trabajamos").

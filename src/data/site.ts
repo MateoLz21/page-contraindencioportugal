@@ -21,8 +21,8 @@ export const site = {
 
 // Redes sociales: las que tengan `url` vacía no se muestran.
 export const redes = {
-  facebook: { nombre: 'Facebook', url: '' },
-  instagram: { nombre: 'Instagram', url: '' },
+  facebook: { nombre: 'Facebook', url: 'https://www.facebook.com/profile.php?id=100063923114484' },
+  instagram: { nombre: 'Instagram', url: 'https://www.instagram.com/contraincendioportugal/' },
   tiktok: { nombre: 'TikTok', url: 'https://www.tiktok.com/@contraincendioportugal' },
 };
 
